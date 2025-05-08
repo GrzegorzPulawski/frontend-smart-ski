@@ -6,6 +6,8 @@ import { Button, Container, Row, Col } from "react-bootstrap";
 
 const EquipmentList = () => {
     const [nazwaZmiennej, setterDoKolekcji] = useState([]);
+    const [selectedEquipment, setSelectedEquipment] = useState(null);
+
     const navigate = useNavigate(); // Hook do nawigacji
 
     useEffect(() => {
@@ -31,6 +33,17 @@ const EquipmentList = () => {
         navigate("/equipmentDelete"); // Przekierowanie do formularza usuwania sprzętu
     };
 
+    const handleSelectEquipment =(equipment) =>{
+        setSelectedEquipment(equipment);
+    }
+    const goToRentEquipment = () =>{
+        if (selectedEquipment){
+            navigate(`/rentEquipment/${selectedEquipment.idEquipment}`);
+        } else {
+        alert("Proszę wybrać sprzęt do wypożyczenia."); // Alert if no equipment is selected
+        }
+    };
+
     return (
         <Container className={classes.Equipment}>
             <h2>Lista sprzętu</h2>
@@ -41,19 +54,44 @@ const EquipmentList = () => {
                 style={{ margin: '10px' }}>
                 Dodaj Sprzęt
             </Button>
-
+            <Button
+                variant="success"
+                onClick={goToRentEquipment}
+                style={{ margin: '10px' }}
+                disabled={!selectedEquipment} // Disable button if no equipment is selected
+            >
+                Wypożycz Sprzęt
+            </Button>
             <div className={classes.EquipmentTableHeader}>
                 <Row>
-                    <Col xs={4} sm={4}>Id</Col>
-                    <Col xs={4} sm={4}>Nazwa sprzętu</Col>
-                    <Col xs={4} sm={4}>Cena</Col>
+                    <Col xs={2} sm={1}>Id</Col>
+                    <Col xs={2} sm={2}>Nazwa Roweru</Col>
+                    <Col xs={2} sm={2}>Nr ramy</Col>
+                    <Col xs={2} sm={2}>Rozmiar</Col>
+                    <Col xs={2} sm={2}>Czy dostępny</Col>
+                    <Col xs={2} sm={2}>Cena</Col>
                 </Row>
             </div>
             {nazwaZmiennej.map((value) => (
-                <Row className={classes.EquipmentTableRow} key={value.idEquipment}>
-                    <Col xs={4} sm={4}>{value.idEquipment}</Col>
-                    <Col xs={4} sm={4}>{value.nameEquipment}</Col>
-                    <Col xs={4} sm={4}>{value.priceEquipment}</Col>
+                <Row
+                className={`${classes.EquipmentTableRow} ${selectedEquipment?.idEquipment === value.idEquipment ? classes.SelectedRow : ''}`}
+                key={value.idEquipment}
+                onClick={() => handleSelectEquipment(value)} // Select equipment on row click
+            >
+                <Col xs={1} sm={1}>
+                    <input
+                        type="radio"
+                        name="selectedEquipment"
+                        checked={selectedEquipment?.idEquipment === value.idEquipment}
+                        readOnly
+                    />
+                </Col>
+                    <Col xs={1} sm={1}>{value.idEquipment}</Col>
+                    <Col xs={2} sm={2}>{value.nameEquipment}</Col>
+                    <Col xs={2} sm={2}>{value.frameNumber}</Col>
+                    <Col xs={2} sm={2}>{value.size}</Col>
+                    <Col xs={2} sm ={2}><input type="checkbox" checked={value.available} readOnly className="checkbox-style" /></Col>
+                    <Col xs={2} sm={2}>{value.priceEquipment}</Col>
                 </Row>
             ))}
             <Button
